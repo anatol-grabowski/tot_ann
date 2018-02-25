@@ -17,9 +17,7 @@ class Layer():
 
     def __repr__(self):
         return 'Layer out=' + repr(self.out)
-
-    def __str__(self):
-        return 'out=' + repr(self.out)
+        
 
 class ANN():
     learning_rate = 0.5
@@ -105,13 +103,41 @@ def main():
     ann.layers[2].w = np.array([[0.40, 0.50],
                                 [0.45, 0.55],
                                 [0.60, 0.60]])
+    ann.layers[0].out = [0.05, 0.10]
+    ann.layers[2].target = [0.01, 0.99]
+    ann.forward_pass()
+    ann.calc_deltas()
+
     from time import time
     start = time()
-    for i in range(100000):
-        ann.learn([0.05, 0.10], [0.01, 0.99])
+    for i in range(1000):
+        #ann.learn([0.05, 0.10], [0.01, 0.99])
+        pass
     print(time() - start)
     print(ann.error())
 
+    import ann_print
+
+    def layers_for_print(ann):
+        layers = ann.layers
+        layer_dicts = [{'out': layers[0].out}]
+        for i, layer in enumerate(layers):
+            if i == 0:
+                continue
+            attrs = ['w', 'net_in', 'out', 'dout_din']
+            layer_dict = {attr: getattr(layer, attr) for attr in attrs}
+            layer_dict['out_prev'] = layers[i - 1].out
+            layer_dict['learning_rate'] = ann.learning_rate
+            if i < len(layers) - 1:
+                layer_dict['delta_next'] = layers[i + 1].delta
+                layer_dict['w_next'] = layers[i + 1].w
+            layer_dicts.append(layer_dict)
+        return layer_dicts
+
+    ann_lines = ann_print.ann_to_lines(layers_for_print(ann))
+    print('\n'.join(ann_lines))
+    l_lines = ann_print.layer_back_to_lines(layers_for_print(ann)[1])
+    print('\n'.join(l_lines))
 
 if __name__ == '__main__':
     main()
