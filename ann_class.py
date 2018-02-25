@@ -32,7 +32,8 @@ class ANN():
         if not hasattr(self, 'layers'):
             raise TypeError('Input layer should be created first')
         layer = Layer(num_neurons, act_fn, dact_fn)
-        layer.w = np.random.normal(0, 1, size=(len(self.layers[-1].out) + 1, len(layer.out)))
+        out_prev_len = len(self.layers[-1].out)
+        layer.w = np.random.normal(0, 1, size=(out_prev_len + 1, num_neurons))
         self.layers.append(layer)
 
     def forward_pass(self):
